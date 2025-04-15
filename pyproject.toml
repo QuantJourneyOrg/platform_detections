@@ -1,0 +1,110 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.black]
+line-length = 88
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--cov=platform_detection"
+testpaths = [
+    "tests",
+]
+
+[tool.coverage.run]
+source = ["platform_detection"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError",
+]
+
+[project]
+name = "platform_detection"
+version = "1.0.0"
+description = "A comprehensive framework for detecting and optimizing computational workloads across platforms"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+keywords = ["platform", "detection", "optimization", "compute", "hardware", "software"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Hardware",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "psutil>=5.8.0",
+]
+
+[project.optional-dependencies]
+full = [
+    "numpy>=1.19.0",
+    "pandas>=1.0.0",
+    "numba>=0.50.0",
+    "cython>=0.29.0",
+    "cpuinfo>=8.0.0",
+]
+dev = [
+    "pytest>=6.0.0",
+    "pytest-cov>=2.10.0",
+    "black>=21.5b2",
+    "isort>=5.9.1",
+    "flake8>=3.9.2",
+    "mypy>=0.812",
+    "sphinx>=4.0.0",
+    "sphinx-rtd-theme>=0.5.2",
+]
+gpu = [
+    "cupy>=10.0.0",
+    "torch>=1.10.0",
+]
+finance = [
+    "numpy>=1.19.0",
+    "pandas>=1.0.0",
+    "numba>=0.50.0",
+    "matplotlib>=3.3.0",
+    "seaborn>=0.11.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/platform_detection"
+"Bug Tracker" = "https://github.com/yourusername/platform_detection/issues"
+"Documentation" = "https://platform-detection.readthedocs.io"
+
+[project.scripts]
+platform-detect = "platform_detection.cli:main"
