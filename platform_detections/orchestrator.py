@@ -22,8 +22,8 @@ from enum import Enum
 from typing import Dict, Any, List, Optional, Union, Set
 
 # Import standardized utilities and constants
-from utils import ErrorHandler, JSONSerializer, PlatformError
-from constants import (
+from .utils import ErrorHandler, JSONSerializer, PlatformError
+from .constants import (
     FLAG_NUMPY, FLAG_CUDA, FLAG_METAL, FLAG_OPENCL, 
     FLAG_APPLE_SILICON, FLAG_ACCELERATE, FLAG_POLARS,
     FLAG_NUMBA, FLAG_CYTHON, FLAG_BOTTLENECK, FLAG_DASK,
@@ -33,11 +33,11 @@ from constants import (
 )
 
 # Import platform-specific detector modules
-from detectors import (
-    HardwareDetector, SoftwareDetector,
+from platform_detections.detectors.os import (
     DarwinDetector, LinuxDetector, WindowsDetector
 )
 
+from platform_detections.detectors import HardwareDetector, SoftwareDetector
 
 class ComputeBackend(Enum):
     """Available computation backends"""

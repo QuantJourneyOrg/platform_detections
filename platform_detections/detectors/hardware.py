@@ -21,8 +21,9 @@ import sys
 import warnings
 from typing import Dict, Any, List, Optional
 
-from .base import BaseDetector
-from ..constants import (
+from platform_detections.utils import ErrorHandler
+from platform_detections.detectors.base import BaseDetector
+from platform_detections.constants import (
     FLAG_GPU, FLAG_CPU_CORES, FLAG_CPU_BRAND, FLAG_MEMORY_TOTAL,
     FLAG_MEMORY_AVAILABLE, FLAG_AVX, FLAG_AVX2, FLAG_NEON
 )

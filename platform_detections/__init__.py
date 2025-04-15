@@ -36,6 +36,7 @@ SOFTWARE.
 __version__ = "1.0.0"
 __author__ = "Jakub Polec"
 
+import logging
 from .orchestrator import PlatformOrchestrator, ComputeBackend
 from .utils import ErrorHandler, JSONSerializer
 
@@ -52,6 +53,22 @@ def get_detector(force_detect=True, log_level=None, enable_warnings=True):
     Returns:
         PlatformOrchestrator instance
     """
+    # Ensure log_level is a valid logging level
+    if log_level is not None and not isinstance(log_level, int):
+        # Try to convert string log levels to integers
+        if isinstance(log_level, str):
+            level_map = {
+                'DEBUG': logging.DEBUG,
+                'INFO': logging.INFO,
+                'WARNING': logging.WARNING,
+                'ERROR': logging.ERROR,
+                'CRITICAL': logging.CRITICAL
+            }
+            log_level = level_map.get(log_level.upper(), logging.WARNING)
+        else:
+            # Default to WARNING if log_level is not valid
+            log_level = logging.WARNING
+            
     return PlatformOrchestrator(
         force_detect=force_detect,
         log_level=log_level,

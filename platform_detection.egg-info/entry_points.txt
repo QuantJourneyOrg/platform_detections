@@ -1,0 +1,2 @@
+[console_scripts]
+platform-detect = platform_detection.cli:main

@@ -12,11 +12,11 @@ import sys
 import warnings
 from typing import Dict, Any, List, Optional
 
-from ..base import BaseDetector
-from ...utils import ErrorHandler
-from ...constants import (
+from platform_detections.detectors.base import BaseDetector
+from platform_detections.utils import ErrorHandler
+from platform_detections.constants import (
     FLAG_APPLE_SILICON, FLAG_ACCELERATE, FLAG_METAL, FLAG_COREML,
-    FLAG_NEURAL_ENGINE, FLAG_OPENCL, FLAG_OPENGL
+    FLAG_NEURAL_ENGINE, FLAG_OPENCL, FLAG_OPENCL
 )
 
 
@@ -584,4 +584,172 @@ class DarwinDetector(BaseDetector):
         # M1 series configurations
         if chip_name == "M1":
             return 4, 4
-        elif chip_name == "M1
+        elif chip_name == "M1 Pro":
+            return 8, 2  # Can be 6P+2E or 8P+2E
+        elif chip_name == "M1 Max":
+            return 8, 2
+        elif chip_name == "M1 Ultra":
+            return 16, 4  # Essentially 2x M1 Max
+            
+        # M2 series configurations
+        elif chip_name == "M2":
+            return 4, 4
+        elif chip_name == "M2 Pro":
+            return 10, 4  # Can be 6P+4E or 8P+4E or 10P+4E
+        elif chip_name == "M2 Max":
+            return 12, 4  # Can be 10P+4E or 12P+4E
+        elif chip_name == "M2 Ultra":
+            return 24, 8  # Essentially 2x M2 Max
+            
+        # M3 series configurations
+        elif chip_name == "M3":
+            return 4, 4
+        elif chip_name == "M3 Pro":
+            return 6, 4  # Can be 6P+4E or 12P+4E
+        elif chip_name == "M3 Max":
+            return 14, 6  # Can be 14P+6E or 16P+4E
+        elif chip_name == "M3 Ultra":
+            return 32, 8  # Essentially 2x M3 Max (or potential config)
+        
+        # Unknown or future chips - provide conservative defaults
+        return 4, 4
+
+    def _detect_intel_simd(self) -> List[str]:
+        """
+        Detect SIMD instruction sets available on Intel Macs
+        
+        Returns:
+            List of detected SIMD instruction sets
+        """
+        simd_features = []
+        
+        try:
+            # Use sysctl to get CPU features
+            output = subprocess.check_output(
+                ["sysctl", "-n", "machdep.cpu.features"]
+            ).decode("utf-8").strip().lower()
+            
+            # Check for common SIMD instruction sets
+            if "sse" in output:
+                simd_features.append("sse")
+            if "sse2" in output:
+                simd_features.append("sse2")
+            if "sse3" in output:
+                simd_features.append("sse3")
+            if "ssse3" in output:
+                simd_features.append("ssse3")
+            if "sse4.1" in output or "sse4_1" in output:
+                simd_features.append("sse4_1")
+            if "sse4.2" in output or "sse4_2" in output:
+                simd_features.append("sse4_2")
+            if "avx" in output and "avx2" not in output:
+                simd_features.append("avx")
+            if "avx2" in output:
+                simd_features.append("avx2")
+            if "avx512" in output:
+                simd_features.append("avx512")
+            
+            # Also check for advanced instruction sets
+            leaf7_output = subprocess.check_output(
+                ["sysctl", "-n", "machdep.cpu.leaf7_features"]
+            ).decode("utf-8").strip().lower()
+            
+            # Check specific AVX-512 variants
+            if "avx512f" in leaf7_output:
+                simd_features.append("avx512f")
+            if "avx512vl" in leaf7_output:
+                simd_features.append("avx512vl")
+            if "avx512bw" in leaf7_output:
+                simd_features.append("avx512bw")
+            if "avx512dq" in leaf7_output:
+                simd_features.append("avx512dq")
+            
+        except (subprocess.SubprocessError, FileNotFoundError):
+            # Fallback method - check processor model
+            try:
+                model = subprocess.check_output(
+                    ["sysctl", "-n", "machdep.cpu.brand_string"]
+                ).decode("utf-8").strip()
+                
+                # Simple heuristic based on processor generation
+                if "i9" in model or "i7" in model or "i5" in model:
+                    # Extract generation if possible
+                    import re
+                    gen_match = re.search(r'i[7539]-(\d)(\d+)', model)
+                    if gen_match:
+                        gen = int(gen_match.group(1))
+                        if gen >= 10:  # 10th gen or newer
+                            simd_features = ["sse", "sse2", "sse3", "ssse3", "sse4_1", "sse4_2", "avx", "avx2"]
+                        elif gen >= 6:  # 6th-9th gen
+                            simd_features = ["sse", "sse2", "sse3", "ssse3", "sse4_1", "sse4_2", "avx", "avx2"]
+                        elif gen >= 3:  # 3rd-5th gen
+                            simd_features = ["sse", "sse2", "sse3", "ssse3", "sse4_1", "sse4_2", "avx"]
+                        else:  # Older
+                            simd_features = ["sse", "sse2", "sse3", "ssse3"]
+                    else:
+                        # Default to common instruction sets for modern Intel Macs
+                        simd_features = ["sse", "sse2", "sse3", "ssse3", "sse4_1", "sse4_2"]
+                elif "Xeon" in model:
+                    # Most Xeon processors in Macs support at least these
+                    simd_features = ["sse", "sse2", "sse3", "ssse3", "sse4_1", "sse4_2", "avx"]
+            except (subprocess.SubprocessError, FileNotFoundError):
+                # Very basic fallback - assume at least SSE2 is available on all Intel Macs
+                simd_features = ["sse", "sse2"]
+        
+        return simd_features
+
+    def get_summary(self, capabilities=None) -> Dict[str, Any]:
+        """
+        Get a summary of macOS-specific capabilities
+        
+        Args:
+            capabilities: Optional pre-detected capabilities
+            
+        Returns:
+            Dictionary with macOS capability summary
+        """
+        if capabilities is None:
+            capabilities = self.detect() if not self.capabilities else self.capabilities
+        
+        summary = {
+            "macos": {
+                "name": capabilities.get("macos_name", "Unknown"),
+                "version": capabilities.get("macos_version", "Unknown"),
+                "is_apple_silicon": capabilities.get("has_apple_silicon", False),
+                "apple_chip": capabilities.get("apple_chip", "Unknown"),
+            },
+            "cores": {
+                "performance": capabilities.get("performance_cores", 0),
+                "efficiency": capabilities.get("efficiency_cores", 0),
+            },
+            "frameworks": {
+                "metal": capabilities.get("has_metal", False),
+                "accelerate": capabilities.get("has_accelerate", False),
+                "coreml": capabilities.get("has_coreml", False),
+                "opencl": capabilities.get("has_opencl", False),
+                "opengl": capabilities.get("has_opengl", False),
+            },
+            "optimizations": {
+                "neural_engine": capabilities.get("has_neural_engine", False),
+                "grand_central_dispatch": capabilities.get("has_grand_central_dispatch", True),
+                "veclib": capabilities.get("has_veclib", False),
+            },
+            "development": {
+                "c_compiler": {
+                    "available": capabilities.get("has_c_compiler", False),
+                    "type": capabilities.get("c_compiler_type", "Unknown"),
+                    "version": capabilities.get("c_compiler_version_number", "Unknown"),
+                },
+                "swift": {
+                    "available": capabilities.get("has_swift", False),
+                    "version": capabilities.get("swift_version_number", "Unknown"),
+                },
+                "pyobjc": {
+                    "available": capabilities.get("has_pyobjc", False),
+                    "version": capabilities.get("pyobjc_version", "Unknown"),
+                },
+            },
+            "simd_support": capabilities.get("simd_support", []),
+        }
+        
+        return summary

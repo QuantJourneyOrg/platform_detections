@@ -8,7 +8,7 @@ to optimize quantitative finance calculations.
 import numpy as np
 import pandas as pd
 import time
-from platform_detection import optimize, get_detector
+from . import optimize, get_detector
 from platform_detection.backends import use_backend
 from platform_detection.orchestrator import ComputeBackend
 

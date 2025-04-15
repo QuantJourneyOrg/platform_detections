@@ -24,7 +24,7 @@ import os
 from typing import Dict, Any, List, Optional, Union, Callable
 
 # Import constants
-from constants import (
+from .constants import (
     ERROR_LEVEL_DEBUG, ERROR_LEVEL_INFO, ERROR_LEVEL_WARNING,
     ERROR_LEVEL_ERROR, ERROR_LEVEL_CRITICAL,
     JSON_METADATA_KEY, JSON_TIMESTAMP_KEY, JSON_VERSION_KEY, 
@@ -60,7 +60,8 @@ class ErrorHandler:
             log_level: The logging level to use
             enable_warnings: Whether to enable Python warnings
         """
-        self.log_level = log_level
+        # Use default WARNING level if None is provided
+        self.log_level = logging.WARNING if log_level is None else log_level
         self.enable_warnings = enable_warnings
         
         # Configure logging

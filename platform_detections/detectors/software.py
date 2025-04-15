@@ -511,10 +511,8 @@ class SoftwareDetector(BaseDetector):
             info["pyfftw_available"] = True
             info["pyfftw_version"] = pyfftw.__version__
         except ImportError:
-            info["pyfftw_available"] = True
-            info["pyfftw_version"] = pyfftw.__version__
-        except ImportError:
             info["pyfftw_available"] = False
+            info["pyfftw_version"] = None
 
         # Check for GPU-accelerated FFT libraries
         try:

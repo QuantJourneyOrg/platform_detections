@@ -12,9 +12,9 @@ import sys
 import warnings
 from typing import Dict, Any, List, Optional
 
-from ...base import BaseDetector
-from ...utils import ErrorHandler
-from ...constants import (
+from platform_detections.detectors.base import BaseDetector
+from platform_detections.utils import ErrorHandler
+from platform_detections.constants import (
     FLAG_GCC, FLAG_CLANG, FLAG_OPENMP, FLAG_MKL, FLAG_OPENBLAS, FLAG_ATLAS
 )
 

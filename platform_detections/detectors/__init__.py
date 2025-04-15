@@ -32,15 +32,15 @@ WindowsDetector = None
 if os_name == "darwin":
     spec = importlib.util.find_spec('.darwin', package=__name__)
     if spec is not None:
-        from .darwin import DarwinDetector
+        from platform_detections.detectors.os.darwin import DarwinDetector
 elif os_name == "linux":
     spec = importlib.util.find_spec('.linux', package=__name__)
     if spec is not None:
-        from .linux import LinuxDetector
+        from platform_detections.detectors.os.linux import LinuxDetector
 elif os_name == "windows":
     spec = importlib.util.find_spec('.windows', package=__name__)
     if spec is not None:
-        from .windows import WindowsDetector
+        from platform_detections.detectors.os.windows import WindowsDetector
 
 __all__ = [
     'BaseDetector',

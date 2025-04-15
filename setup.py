@@ -17,7 +17,7 @@ import os
 import re
 
 # Read version from __init__.py
-with open(os.path.join('platform_detection', '__init__.py'), 'r') as f:
+with open(os.path.join('platform_detections', '__init__.py'), 'r') as f:
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", f.read(), re.M)
     if version_match:
         version = version_match.group(1)
@@ -80,7 +80,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'platform-detect=platform_detection.cli:main',
+            'platform-detect=platform_detections.cli:main',
         ],
     },
 )
