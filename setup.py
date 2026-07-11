@@ -65,7 +65,7 @@ setup(
             'pandas>=1.0.0',
             'numba>=0.50.0',
             'cython>=0.29.0',
-            'cpuinfo>=8.0.0',
+            'py-cpuinfo>=8.0.0',
         ],
         'dev': [
             'pytest>=6.0.0',

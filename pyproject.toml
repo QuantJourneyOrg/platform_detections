@@ -20,13 +20,14 @@ disallow_incomplete_defs = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--cov=platform_detection"
+addopts = "--cov=platform_detections"
+pythonpath = ["."]
 testpaths = [
     "tests",
 ]
 
 [tool.coverage.run]
-source = ["platform_detection"]
+source = ["platform_detections"]
 omit = ["tests/*"]
 
 [tool.coverage.report]
@@ -77,7 +78,7 @@ full = [
     "pandas>=1.0.0",
     "numba>=0.50.0",
     "cython>=0.29.0",
-    "cpuinfo>=8.0.0",
+    "py-cpuinfo>=8.0.0",
 ]
 dev = [
     "pytest>=6.0.0",
@@ -102,8 +103,8 @@ finance = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/platform_detection"
-"Bug Tracker" = "https://github.com/yourusername/platform_detection/issues"
+"Homepage" = "https://github.com/QuantJourneyOrg/platform_detections"
+"Bug Tracker" = "https://github.com/QuantJourneyOrg/platform_detections/issues"
 "Documentation" = "https://platform-detection.readthedocs.io"
 
 [project.scripts]
